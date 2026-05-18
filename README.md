@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JualBeliRBX
 
-## Getting Started
+Marketplace komunitas Roblox Indonesia — built with Next.js 16 + Supabase.
 
-First, run the development server:
+## Stack
+- Next.js 16 (App Router)
+- Supabase (Postgres + Auth + Storage)
+- Tailwind CSS
+- Hosted gratis: Vercel + Supabase
+
+## Setup (one-time)
+
+### 1. Buat project Supabase (gratis)
+
+1. Daftar di https://supabase.com (login pakai GitHub atau email)
+2. New Project → kasih nama `jualbelirbx`, region `Southeast Asia (Singapore)`, set DB password
+3. Tunggu ~2 menit project ready
+4. **SQL Editor** → paste isi `supabase-schema.sql` → Run
+5. **Settings → API** → copy:
+   - `Project URL` → `https://xxxxx.supabase.co`
+   - `anon public key` → `eyJ...`
+6. **Authentication → URL Configuration** → tambah Site URL: `https://jualbelirbx.claudeopus.xyz` (juga `http://localhost:3000` buat dev)
+
+### 2. Setup local
 
 ```bash
+cp .env.example .env.local
+# Isi NEXT_PUBLIC_SUPABASE_URL & NEXT_PUBLIC_SUPABASE_ANON_KEY
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+Buka http://localhost:3000
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Deploy ke Vercel (gratis)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Push repo ini ke GitHub bos
+2. https://vercel.com → Add New Project → Import GitHub repo
+3. Environment Variables → tambah:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Connect subdomain `jualbelirbx.claudeopus.xyz`
 
-## Learn More
+**Di Vercel dashboard:**
+- Settings → Domains → Add → `jualbelirbx.claudeopus.xyz`
+- Vercel kasih CNAME record (mis. `cname.vercel-dns.com`)
 
-To learn more about Next.js, take a look at the following resources:
+**Di Hostinger DNS:**
+- Domain `claudeopus.xyz` → DNS Zone
+- Add Record: Type=`CNAME`, Name=`jualbelirbx`, Target=`cname.vercel-dns.com`, TTL=3600
+- Tunggu 5-30 menit propagasi
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 5. Update Supabase auth URL
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Supabase → Authentication → URL Configuration → Site URL → `https://jualbelirbx.claudeopus.xyz`
+- Redirect URLs → tambah `https://jualbelirbx.claudeopus.xyz/**`
 
-## Deploy on Vercel
+## Fitur
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- ✅ Browse listing + search + filter kategori
+- ✅ Daftar/Login (email + password)
+- ✅ Pasang/edit/hapus listing dengan upload foto
+- ✅ Detail item dengan kontak WhatsApp seller
+- ✅ Profile + rating
+- ✅ Row-level security: user cuma bisa edit miliknya
+- ✅ Public storage untuk foto listing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Roadmap (next iteration)
+
+- Sistem review setelah transaksi selesai
+- Admin panel (verify seller, ban scammer)
+- Wishlist
+- Notifikasi WhatsApp / email saat ada chat
+- Integrasi Midtrans untuk escrow otomatis (perlu PT/CV business)
+
+## Struktur
+
+```
+src/
+├── app/
+│   ├── layout.tsx        Root layout + nav
+│   ├── page.tsx          Homepage (browse + search)
+│   ├── login/            Login form
+│   ├── register/         Daftar
+│   ├── dashboard/        Listing milik user
+│   ├── sell/             Form pasang listing
+│   └── item/[id]/        Detail item
+├── components/
+│   └── logout-button.tsx
+└── lib/
+    ├── types.ts
+    └── supabase/
+        ├── server.ts
+        ├── client.ts
+        └── proxy.ts
+proxy.ts                  Auth session refresh
+supabase-schema.sql       Run di Supabase SQL Editor
+```
